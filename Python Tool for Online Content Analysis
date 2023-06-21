@@ -1,0 +1,102 @@
+import requests
+from bs4 import BeautifulSoup
+
+#Step 1: Data Extraccion
+req_data= requests.get('https://www.doctor.com/Dr-Larisse-Lee?utm_source=doctor')
+# req_data.status_code
+
+# req_data.text
+
+# soup= BeautifulSoup(req_data.text, 'html.parser')
+# divs= soup.findAll(class_='review-text')
+# file_name = ('Dr.David-Ancona.txt')
+
+# with open(file_name, 'w') as file:
+    # for div in divs:
+        # review = div.p.next_sibling.next_sibling.string
+        # print(str(review))
+        # file.write(str(review))
+        
+#Step 2: Data Cleaning
+import re
+text = open(r'C:\Users\brend\Documents\MSIE_Brendaliz\Spring2022\ININ6999\Python\Data_Overall.txt', encoding="cp1252").read()
+text=text.lower()
+new_text = re.sub('[^a-zA-Z0-9\n\.]', ' ', text)
+print(new_text)
+open('Dr.David-Ancona.txt', 'w').write(new_text)
+#Step 2.1: Stop Word Removal
+import nltk
+from nltk.corpus import stopwords
+text = open(r'C:\Users\brend\Documents\MSIE_Brendaliz\Spring2022\ININ6999\Python\Dr.David-Ancona.txt', encoding="utf8").read()
+words = text.split()
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+stop_words = set(stopwords.words('english'))
+stop_words.update(['.',',','"',"'",'?','!',':',';','(',')','[',']','{','}','Dr','Dr.','dr','dr.'])
+words = [word for word in words if not word in stop_words]
+
+# Step 2.2: Lemmatizing
+from nltk.stem import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+Lemmatized_tokens = [lemmatizer.lemmatize(word) for word in words]
+Final_Corpus = Lemmatized_tokens
+# print(Final_Corpus)
+
+#Step 3:Word Frequency
+from nltk import FreqDist
+frequency_distribution = FreqDist(Final_Corpus)
+# print(frequency_distribution)
+top_10 = frequency_distribution.most_common(10)
+
+#Step 3.1: Word Frequency Cleaning for Plotting
+my_list_words = str(re.findall(r"('\w+')", str(top_10)))
+my_list_numbers = str(re.findall('[0-9]+', str(top_10)))
+my_list_words = my_list_words.replace("'","")
+my_list_words = my_list_words.replace("[","")
+my_list_words = my_list_words.replace("]","")
+my_list_words = my_list_words.replace('"',"")
+my_list_words = my_list_words.split(",")
+
+
+my_list_numbers = my_list_numbers.replace("'","")
+my_list_numbers = my_list_numbers.replace("[","")
+my_list_numbers = my_list_numbers.replace("]","")
+my_list_numbers = my_list_numbers.replace('"',"")
+my_list_numbers = my_list_numbers.split(",")
+
+numbers = [ ]
+for item in my_list_numbers:
+    item = int(item)
+    numbers.append(item)
+    
+#Step 3.2: Bar Plot
+import matplotlib.pyplot as plt
+
+x_axis = my_list_words
+y_axis = numbers
+
+plt.bar(x_axis, y_axis)
+plt.title('Word Frequency')
+plt.xlabel('Most Frequent Words')
+plt.ylabel('Word Frequency')
+plt.xticks(rotation = 45)
+plt.show()
+
+#Step 4: Word Cloud Creation
+from wordcloud import WordCloud
+
+text = open('Dr.David-Ancona.txt',mode='r', encoding = 'utf-8').read()
+
+wordcloud = WordCloud(
+        background_color = 'black',
+        stopwords = stop_words,
+        height = 500,
+        width = 500
+    
+)
+wordcloud.generate(text)
+
+#store to file
+wordcloud.to_file('Dr.David-Ancona.png')
