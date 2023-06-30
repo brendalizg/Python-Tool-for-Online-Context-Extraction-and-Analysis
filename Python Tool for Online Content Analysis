@@ -1,33 +1,42 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
-#Step 1: Data Extraccion
-req_data= requests.get('https://www.doctor.com/Dr-Larisse-Lee?utm_source=doctor')
-# req_data.status_code
+#Step 1: Data Extraction
+# url = 'https://www.doctor.com/Dr-Alice-Urbankova?utm_source=doctor'
+# your_path = r'C:\Users\brend\Documents\MSIE_Brendaliz\Spring2022\ININ6999\Python'
+url = input('Enter your url: ')
+your_path = str(input('Enter the path of where your files will be located: '))
+req_data= requests.get(url)
+file_name=url.split('/')
+file_name=file_name[3]
+file_name= file_name.split('?')
+file_name = str(file_name[0]) + str('.txt')
+req_data.status_code
 
-# req_data.text
+req_data.text
 
-# soup= BeautifulSoup(req_data.text, 'html.parser')
-# divs= soup.findAll(class_='review-text')
-# file_name = ('Dr.David-Ancona.txt')
+soup= BeautifulSoup(req_data.text, 'html.parser')
+divs= soup.findAll(class_='review-text')
 
-# with open(file_name, 'w') as file:
-    # for div in divs:
-        # review = div.p.next_sibling.next_sibling.string
-        # print(str(review))
-        # file.write(str(review))
+
+with open(file_name, 'w') as file:
+    for div in divs:
+        review = div.p.next_sibling.next_sibling.string
+        print(str(review))
+        file.write(str(review))
         
 #Step 2: Data Cleaning
 import re
-text = open(r'C:\Users\brend\Documents\MSIE_Brendaliz\Spring2022\ININ6999\Python\Data_Overall.txt', encoding="cp1252").read()
+text = open(your_path  +'\\' + file_name, encoding="cp1252").read()
 text=text.lower()
 new_text = re.sub('[^a-zA-Z0-9\n\.]', ' ', text)
 print(new_text)
-open('Dr.David-Ancona.txt', 'w').write(new_text)
+open(file_name, 'w').write(new_text)
 #Step 2.1: Stop Word Removal
 import nltk
 from nltk.corpus import stopwords
-text = open(r'C:\Users\brend\Documents\MSIE_Brendaliz\Spring2022\ININ6999\Python\Dr.David-Ancona.txt', encoding="utf8").read()
+text = open(your_path  +'\\' + file_name, encoding="utf8").read()
 words = text.split()
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -87,7 +96,7 @@ plt.show()
 #Step 4: Word Cloud Creation
 from wordcloud import WordCloud
 
-text = open('Dr.David-Ancona.txt',mode='r', encoding = 'utf-8').read()
+text = open(file_name,mode='r', encoding = 'utf-8').read()
 
 wordcloud = WordCloud(
         background_color = 'black',
@@ -99,4 +108,5 @@ wordcloud = WordCloud(
 wordcloud.generate(text)
 
 #store to file
-wordcloud.to_file('Dr.David-Ancona.png')
+wordcloud.to_file(file_name + '.png')
+
